@@ -1,0 +1,12 @@
+# GENERATED, AND DELIBERATELY NOT COMMITTED.
+#
+# starship-dashboard.ps1 writes these from live briefing.ps1 -Json output on both machines. They
+# contain the current state of a specific person's laptop: session UUIDs, process ids, free space
+# per drive, scheduled task names and results, watchdog findings, quarantine folder names.
+#
+# This repository is a PUBLIC fork. The renderer, the catalog and the view tree are shareable
+# engineering; a snapshot of someone's machine is not, and it would be stale within the hour anyway.
+# Regenerate locally instead:
+#     & "$env:USERPROFILE\.claude\scripts\starship-dashboard.ps1"
+data.js
+data.json

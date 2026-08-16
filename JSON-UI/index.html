@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STARSHIP CONSOLE</title>
+
+<!-- AdminLTE, unmodified, straight from the fork's prebuilt dist. No build step, no server. -->
+<link rel="stylesheet" href="../dist/css/adminlte.min.css">
+
+<style>
+/* ---------------------------------------------------------------------------
+   LCARS-inspired palette over AdminLTE's components.
+   Deliberately a RESTYLE, not a reimplementation: every widget keeps working and
+   an AdminLTE upgrade will not break the layout. Colours are the LCARS family
+   (amber / salmon / lilac / sky on black) without copying the elbow geometry.
+   --------------------------------------------------------------------------- */
+:root{
+  --stx-bg:#000; --stx-panel:#0b0b0f; --stx-line:#1c1c26;
+  --stx-amber:#f90; --stx-salmon:#c66; --stx-lilac:#c9c; --stx-sky:#9cf;
+  --stx-red:#e34; --stx-dim:#667;
+}
+body{background:var(--stx-bg);color:var(--stx-amber);
+  font-family:"Helvetica Neue",Arial,sans-serif;letter-spacing:.06em;}
+.stx-wrap{max-width:1500px;margin:0 auto;padding:18px}
+.stx-head{display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:3px solid var(--stx-amber);padding-bottom:8px;margin-bottom:16px}
+.stx-title{font-size:1.5rem;font-weight:700;text-transform:uppercase;color:var(--stx-amber)}
+.stx-clock{color:var(--stx-lilac);font-variant-numeric:tabular-nums}
+
+.stx-banner{display:flex;gap:16px;align-items:baseline;padding:12px 18px;
+  border-radius:0 22px 22px 0;margin-bottom:16px;text-transform:uppercase;font-weight:700}
+.stx-banner-detail{font-weight:400;text-transform:none;letter-spacing:normal;color:#000a}
+.stx-nominal{background:var(--stx-amber);color:#000}
+.stx-attention{background:var(--stx-salmon);color:#000}
+.stx-critical{background:var(--stx-red);color:#000}
+.stx-degraded{background:var(--stx-lilac);color:#000}
+.stx-muted{background:var(--stx-dim);color:#000}
+.stx-info{background:var(--stx-sky);color:#000}
+
+/* AdminLTE cards, restyled */
+.card.stx-panel{background:var(--stx-panel);border:1px solid var(--stx-line);
+  border-left:6px solid var(--stx-lilac);border-radius:0 14px 14px 0;margin-bottom:14px}
+.card.stx-panel>.card-header{background:transparent;border-bottom:1px solid var(--stx-line)}
+.card.stx-panel .card-title{color:var(--stx-sky);text-transform:uppercase;
+  font-size:.82rem;letter-spacing:.16em;font-weight:700}
+
+.stx-metric{padding:8px 4px}
+.stx-metric-label{color:var(--stx-dim);text-transform:uppercase;font-size:.66rem;letter-spacing:.16em}
+.stx-metric-value{color:var(--stx-amber);font-size:1.85rem;font-weight:700;
+  line-height:1.1;font-variant-numeric:tabular-nums}
+.stx-metric-delta{font-size:.75rem}
+.stx-up{color:var(--stx-sky)} .stx-down{color:var(--stx-salmon)}
+
+.stx-field{display:flex;justify-content:space-between;gap:12px;
+  padding:4px 0;border-bottom:1px solid var(--stx-line)}
+.stx-field-label{color:var(--stx-dim);text-transform:uppercase;font-size:.7rem;letter-spacing:.12em}
+.stx-field-value{color:var(--stx-amber);font-variant-numeric:tabular-nums}
+
+.stx-repeat-item{padding:6px 0;border-bottom:1px solid var(--stx-line)}
+.stx-empty{color:var(--stx-dim);font-style:italic;padding:6px 0}
+.stx-note{color:var(--stx-dim);margin:0}
+
+.stx-table{color:var(--stx-amber)}
+.stx-table th{color:var(--stx-sky);text-transform:uppercase;font-size:.66rem;
+  letter-spacing:.14em;border-color:var(--stx-line)}
+.stx-table td{border-color:var(--stx-line);font-variant-numeric:tabular-nums}
+
+.stx-gauge-label{color:var(--stx-dim);text-transform:uppercase;font-size:.68rem;letter-spacing:.14em}
+.progress{background:var(--stx-line);height:9px;border-radius:0}
+.progress-bar{background:var(--stx-amber)}
+
+/* A value that could not be measured. NEVER shown as zero - a green zero reads as health,
+   and "silence is not health" is the most expensive lesson on this machine. */
+.stx-unknown .stx-metric-value,.stx-unknown .stx-field-value,td.stx-unknown{
+  color:var(--stx-red)!important;font-style:italic}
+.stx-error{color:var(--stx-red)}
+.stx-stale{border-left-color:var(--stx-red)!important}
+</style>
+</head>
+<body>
+<div class="stx-wrap">
+  <div class="stx-head">
+    <div class="stx-title" id="stx-machine">STARSHIP CONSOLE</div>
+    <div class="stx-clock" id="stx-clock">--:--:--</div>
+  </div>
+  <div id="stx-root"></div>
+  <p class="stx-note" id="stx-foot"></p>
+</div>
+
+<script src="catalog.js"></script>
+<script src="render.js"></script>
+<script src="data.js"></script>
+<script src="view.js"></script>
+<script>
+(function(){
+  var root = document.getElementById('stx-root');
+
+  // DASH is written by starship-dashboard.ps1. If it is absent or stale, SAY SO - do not render a
+  // confident-looking page from nothing. An empty dashboard that looks fine is the failure this
+  // whole layer exists to prevent.
+  if (typeof DASH === 'undefined') {
+    root.innerHTML = '';
+    var e = document.createElement('div');
+    e.className = 'stx-banner stx-critical';
+    e.textContent = 'NO DATA - run starship-dashboard.ps1 to generate data.js';
+    root.appendChild(e);
+    return;
+  }
+
+  document.getElementById('stx-machine').textContent =
+    (DASH.zbook && DASH.zbook.machine ? DASH.zbook.machine : 'STARSHIP') + ' CONSOLE';
+
+  var res = StarshipRender.render(STARSHIP_VIEW, DASH, root);
+
+  var age = DASH.generatedAt ? Math.round((Date.now() - new Date(DASH.generatedAt)) / 60000) : null;
+  document.getElementById('stx-foot').textContent =
+    'data generated ' + (DASH.generatedAt || 'unknown') +
+    (age !== null ? '  (' + age + ' min old)' : '') +
+    (res.ok ? '' : '  |  VIEW REJECTED: ' + res.error);
+
+  function tick(){
+    var d = new Date();
+    document.getElementById('stx-clock').textContent = d.toTimeString().slice(0,8);
+  }
+  tick(); setInterval(tick, 1000);
+
+  // Reload on a cadence matched to the watchdog sweep. file:// safe.
+  setTimeout(function(){ location.reload(); }, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
