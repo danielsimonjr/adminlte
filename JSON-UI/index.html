@@ -119,6 +119,25 @@ body{background:var(--stx-bg);color:var(--stx-amber);
     (age !== null ? '  (' + age + ' min old)' : '') +
     (res.ok ? '' : '  |  VIEW REJECTED: ' + res.error);
 
+  /* STALE DATA MUST BE LOUD, NOT A FOOTNOTE.
+     The page reloads itself every 5 min and StarshipDashboardRefresh regenerates data.js on the
+     same cadence. If that task dies, this page keeps reloading and keeps redisplaying yesterday's
+     numbers - every panel confident, every value wrong, and the only hint a small grey line at the
+     bottom nobody reads. That is precisely the "silence reads as health" failure this whole layer
+     exists to prevent, so it gets a banner at the TOP in the same red as an unresolvable value.
+     Threshold is 3 missed refreshes: one miss is a slow ssh to the EVO, three is a broken pipeline.
+     Unknown age is treated as STALE, not as fresh - failing open in the direction of suspicion. */
+  var STALE_MIN = 15;
+  if (age === null || age >= STALE_MIN) {
+    var warn = document.createElement('div');
+    warn.className = 'stx-banner stx-critical';
+    warn.textContent = age === null
+      ? 'DATA AGE UNKNOWN - cannot tell if this page is current. Check StarshipDashboardRefresh.'
+      : 'STALE DATA - ' + age + ' MIN OLD. The refresh task has missed ' +
+        Math.floor(age / 5) + ' cycles. Everything below may be wrong.';
+    root.insertBefore(warn, root.firstChild);
+  }
+
   function tick(){
     var d = new Date();
     document.getElementById('stx-clock').textContent = d.toTimeString().slice(0,8);
