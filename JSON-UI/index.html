@@ -31,12 +31,31 @@ body{background:var(--stx-bg);color:var(--stx-amber);
 .stx-banner{display:flex;gap:16px;align-items:baseline;padding:12px 18px;
   border-radius:0 22px 22px 0;margin-bottom:16px;text-transform:uppercase;font-weight:700}
 .stx-banner-detail{font-weight:400;text-transform:none;letter-spacing:normal;color:#000a}
-.stx-nominal{background:var(--stx-amber);color:#000}
-.stx-attention{background:var(--stx-salmon);color:#000}
-.stx-critical{background:var(--stx-red);color:#000}
-.stx-degraded{background:var(--stx-lilac);color:#000}
-.stx-muted{background:var(--stx-dim);color:#000}
-.stx-info{background:var(--stx-sky);color:#000}
+/* TONE CLASSES ARE SCOPED TO THE BANNER. They were unscoped, so a solid banner background
+   landed on every toned Field, Metric and Gauge as well - each row rendering as a filled block
+   with near-invisible black-on-colour text. It stayed hidden while only the banner carried a
+   tone; adding the briefing panels, where every row is toned, made it obvious immediately.
+   A tone on a banner means "fill this bar"; on a line of text it means "colour these words". */
+.stx-banner.stx-nominal{background:var(--stx-amber);color:#000}
+.stx-banner.stx-attention{background:var(--stx-salmon);color:#000}
+.stx-banner.stx-critical{background:var(--stx-red);color:#000}
+.stx-banner.stx-degraded{background:var(--stx-lilac);color:#000}
+.stx-banner.stx-muted{background:var(--stx-dim);color:#000}
+.stx-banner.stx-info{background:var(--stx-sky);color:#000}
+
+/* Everywhere else a tone is a FOREGROUND colour. Applied to the value, which is the part that
+   carries meaning; the label stays dim so a wall of toned rows still scans. */
+.stx-field.stx-nominal   .stx-field-value,.stx-metric.stx-nominal   .stx-metric-value{color:var(--stx-amber)}
+.stx-field.stx-attention .stx-field-value,.stx-metric.stx-attention .stx-metric-value{color:var(--stx-salmon)}
+.stx-field.stx-critical  .stx-field-value,.stx-metric.stx-critical  .stx-metric-value{color:var(--stx-red)}
+.stx-field.stx-degraded  .stx-field-value,.stx-metric.stx-degraded  .stx-metric-value{color:var(--stx-lilac)}
+.stx-field.stx-muted     .stx-field-value,.stx-metric.stx-muted     .stx-metric-value{color:var(--stx-dim)}
+.stx-field.stx-info      .stx-field-value,.stx-metric.stx-info      .stx-metric-value{color:var(--stx-sky)}
+.stx-note.stx-muted{color:var(--stx-dim)}
+
+/* Briefing rows are long sentences, not label/value pairs - let them wrap and read left to right
+   instead of being pushed hard right by space-between. */
+.stx-field .stx-field-value{text-align:left;overflow-wrap:anywhere}
 
 /* AdminLTE cards, restyled */
 .card.stx-panel{background:var(--stx-panel);border:1px solid var(--stx-line);

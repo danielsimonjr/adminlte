@@ -11,6 +11,170 @@ const STARSHIP_VIEW = [
   {
     "type": "Row",
     "props": {
+      "cols": 2
+    },
+    "children": [
+      {
+        "type": "Panel",
+        "props": {
+          "title": "BRIEFING - NEEDS ATTENTION (ZBOOK)",
+          "tone": "critical"
+        },
+        "children": [
+          {
+            "type": "Field",
+            "props": {
+              "label": "status",
+              "valuePath": "zbook.status",
+              "tone": "attention"
+            }
+          },
+          {
+            "type": "Field",
+            "props": {
+              "label": "window (h)",
+              "valuePath": "zbook.windowH",
+              "tone": "muted"
+            }
+          },
+          {
+            "type": "Note",
+            "props": {
+              "text": "S1 - act now",
+              "tone": "muted"
+            }
+          },
+          {
+            "type": "Repeat",
+            "props": {
+              "fromPath": "zbook.sev1",
+              "emptyText": "none"
+            },
+            "children": [
+              {
+                "type": "Field",
+                "props": {
+                  "label": "S1",
+                  "valuePath": "$item",
+                  "tone": "critical"
+                }
+              }
+            ]
+          },
+          {
+            "type": "Note",
+            "props": {
+              "text": "S2 - needs attention",
+              "tone": "muted"
+            }
+          },
+          {
+            "type": "Repeat",
+            "props": {
+              "fromPath": "zbook.sev2",
+              "emptyText": "none"
+            },
+            "children": [
+              {
+                "type": "Field",
+                "props": {
+                  "label": "S2",
+                  "valuePath": "$item",
+                  "tone": "attention"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Panel",
+        "props": {
+          "title": "BLIND SPOTS - CHECKS THAT COULD NOT RUN",
+          "tone": "critical"
+        },
+        "children": [
+          {
+            "type": "Note",
+            "props": {
+              "text": "A blind spot is NOT an all-clear. A check that could not run tells you nothing, and an empty result reads exactly like a clean one. This panel exists so that difference is visible.",
+              "tone": "muted"
+            }
+          },
+          {
+            "type": "Repeat",
+            "props": {
+              "fromPath": "zbook.blindSpots",
+              "emptyText": "none - every check ran"
+            },
+            "children": [
+              {
+                "type": "Field",
+                "props": {
+                  "label": "!!",
+                  "valuePath": "$item",
+                  "tone": "critical"
+                }
+              }
+            ]
+          },
+          {
+            "type": "Note",
+            "props": {
+              "text": "EVO-X2",
+              "tone": "muted"
+            }
+          },
+          {
+            "type": "Repeat",
+            "props": {
+              "fromPath": "evo.blindSpots",
+              "emptyText": "none - every check ran"
+            },
+            "children": [
+              {
+                "type": "Field",
+                "props": {
+                  "label": "!!",
+                  "valuePath": "$item",
+                  "tone": "critical"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Panel",
+    "props": {
+      "title": "BRIEFING CONTEXT (ZBOOK)",
+      "tone": "info"
+    },
+    "children": [
+      {
+        "type": "Repeat",
+        "props": {
+          "fromPath": "zbook.context",
+          "emptyText": "no context lines"
+        },
+        "children": [
+          {
+            "type": "Field",
+            "props": {
+              "label": "-",
+              "valuePath": "$item",
+              "tone": "muted"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Row",
+    "props": {
       "cols": 4
     },
     "children": [
@@ -337,5 +501,4 @@ const STARSHIP_VIEW = [
       }
     ]
   }
-]
-;
+];
