@@ -102,6 +102,13 @@ const STARSHIP_VIEW = [
             }
           },
           {
+            "type": "Note",
+            "props": {
+              "text": "ZBOOK",
+              "tone": "muted"
+            }
+          },
+          {
             "type": "Repeat",
             "props": {
               "fromPath": "zbook.blindSpots",
@@ -163,7 +170,7 @@ const STARSHIP_VIEW = [
           {
             "type": "Field",
             "props": {
-              "label": "-",
+              "label": "",
               "valuePath": "$item",
               "tone": "muted"
             }

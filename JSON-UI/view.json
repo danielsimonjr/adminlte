@@ -101,6 +101,13 @@
             }
           },
           {
+            "type": "Note",
+            "props": {
+              "text": "ZBOOK",
+              "tone": "muted"
+            }
+          },
+          {
             "type": "Repeat",
             "props": {
               "fromPath": "zbook.blindSpots",
@@ -162,7 +169,7 @@
           {
             "type": "Field",
             "props": {
-              "label": "-",
+              "label": "",
               "valuePath": "$item",
               "tone": "muted"
             }

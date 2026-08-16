@@ -9,28 +9,113 @@
 <link rel="stylesheet" href="../dist/css/adminlte.min.css">
 
 <style>
-/* ---------------------------------------------------------------------------
-   LCARS-inspired palette over AdminLTE's components.
-   Deliberately a RESTYLE, not a reimplementation: every widget keeps working and
-   an AdminLTE upgrade will not break the layout. Colours are the LCARS family
-   (amber / salmon / lilac / sky on black) without copying the elbow geometry.
-   --------------------------------------------------------------------------- */
-:root{
-  --stx-bg:#000; --stx-panel:#0b0b0f; --stx-line:#1c1c26;
-  --stx-amber:#f90; --stx-salmon:#c66; --stx-lilac:#c9c; --stx-sky:#9cf;
-  --stx-red:#e34; --stx-dim:#667;
-}
-body{background:var(--stx-bg);color:var(--stx-amber);
-  font-family:"Helvetica Neue",Arial,sans-serif;letter-spacing:.06em;}
-.stx-wrap{max-width:1500px;margin:0 auto;padding:18px}
-.stx-head{display:flex;justify-content:space-between;align-items:baseline;
-  border-bottom:3px solid var(--stx-amber);padding-bottom:8px;margin-bottom:16px}
-.stx-title{font-size:1.5rem;font-weight:700;text-transform:uppercase;color:var(--stx-amber)}
-.stx-clock{color:var(--stx-lilac);font-variant-numeric:tabular-nums}
+/* ===========================================================================
+   STARSHIP CONSOLE
 
-.stx-banner{display:flex;gap:16px;align-items:baseline;padding:12px 18px;
-  border-radius:0 22px 22px 0;margin-bottom:16px;text-transform:uppercase;font-weight:700}
-.stx-banner-detail{font-weight:400;text-transform:none;letter-spacing:normal;color:#000a}
+   THE THESIS. Every defect this console was built to catch has one shape:
+   something that LOOKS fine and is not. A green zero that was a blind spot. A
+   check that could not run, reading as an all-clear. A page reloading stale
+   numbers with total confidence. So the page's job is not "show the numbers" -
+   it is to make MEASURED and UNMEASURED impossible to confuse.
+
+   That drives three decisions the rest of this file exists to serve:
+
+   1. SECTIONS ARE TIERS OF CERTAINTY, NOT CATEGORIES OF DATA.
+      act now -> cannot see -> measured -> context. The reading order IS the
+      information: what needs you, what we cannot tell you, then what we know.
+
+   2. ABSENCE IS NOT ALARM. UNKNOWN used to render RED here. Red means
+      "something is wrong", but an unmeasured value is not wrong, it is MISSING.
+      Colouring absence as alarm trains the eye to discount red AND steals red
+      from the real S1 case. Absence now renders as a desaturated void with a
+      hollow slot: obviously a hole in the data, not a failing measurement.
+
+   3. STALENESS IS FELT, NOT READ. Data age drives a page-wide desaturation, so
+      an out-of-date console looks visibly drained before you read a word of it.
+      A banner you must read is a banner you can miss.
+
+   TYPE. Bahnschrift (DIN 1451 lineage - the same industrial-signage family
+   LCARS drew from via Swiss 911) for structure, Cascadia Mono for every value.
+   Both ship with Windows, which matters: this page runs from file:// with no
+   network, so a webfont would silently fall back to Arial and take the whole
+   visual identity with it.
+   =========================================================================== */
+:root{
+  /* Not pure #000: amber on true black vibrates. A hint of blue settles it. */
+  --stx-bg:#05060a; --stx-panel:#0d0f16; --stx-panel-2:#11141d; --stx-line:#1e2230;
+
+  --stx-amber:#ff9f1c;    /* nominal / primary            */
+  --stx-sky:#7cc4ff;      /* labels, structure            */
+  --stx-lilac:#c9a0dc;    /* degraded                     */
+  --stx-salmon:#ff8f6b;   /* attention                    */
+  --stx-red:#ff4d4d;      /* S1 ONLY - reserved, see (2)  */
+  --stx-dim:#5d6577;      /* quiet labels                 */
+  --stx-void:#6b7280;     /* ABSENCE - never red          */
+
+  --stx-veil:1;           /* set from data age; see (3)   */
+}
+
+body{
+  background:
+    /* One ambient gradient, not a pattern. The console should feel like a lit
+       panel in a dark room rather than a page with a background image. */
+    radial-gradient(1200px 600px at 15% -10%, #0d1424 0%, transparent 60%),
+    var(--stx-bg);
+  color:var(--stx-amber);
+  font-family:"Bahnschrift SemiCondensed","Bahnschrift",-apple-system,Segoe UI,sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+.stx-wrap{
+  max-width:1560px;margin:0 auto;padding:22px 24px 40px;
+  /* THE STALENESS VEIL. Peripheral, not textual. */
+  filter:saturate(var(--stx-veil));
+  transition:filter .6s ease;
+}
+
+/* ---- masthead: identity, then the two facts that qualify everything below --- */
+.stx-head{
+  display:flex;align-items:baseline;gap:18px;
+  padding-bottom:10px;margin-bottom:18px;
+  border-bottom:1px solid var(--stx-line);
+  box-shadow:0 1px 0 rgba(255,159,28,.35);   /* hairline + glow, not a slab */
+}
+.stx-title{
+  font-family:"Bahnschrift Condensed","Bahnschrift",sans-serif;
+  font-size:1.55rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--stx-amber);
+}
+.stx-head-spacer{flex:1}
+.stx-head-stat{
+  font-family:"Cascadia Mono",Consolas,monospace;font-size:.74rem;
+  color:var(--stx-dim);text-transform:uppercase;letter-spacing:.14em;
+}
+.stx-head-stat b{color:var(--stx-sky);font-weight:600}
+.stx-clock{
+  font-family:"Cascadia Mono",Consolas,monospace;
+  color:var(--stx-lilac);font-size:.92rem;letter-spacing:.08em;
+}
+
+/* ---- tier headings: the certainty ladder, stated ---------------------------- */
+.stx-tier{
+  display:flex;align-items:center;gap:12px;
+  margin:26px 0 10px;
+  font-family:"Bahnschrift Condensed","Bahnschrift",sans-serif;
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.34em;color:var(--stx-dim);
+}
+.stx-tier::after{content:"";flex:1;height:1px;background:var(--stx-line)}
+
+/* ---- the verdict. One bar, full width, unmissable, never more than one ------ */
+.stx-banner{
+  display:flex;gap:18px;align-items:baseline;padding:14px 22px;
+  border-radius:0 26px 26px 0;margin-bottom:6px;
+  font-family:"Bahnschrift Condensed","Bahnschrift",sans-serif;
+  text-transform:uppercase;font-weight:700;letter-spacing:.2em;font-size:1.02rem;
+}
+.stx-banner-detail{
+  font-family:"Bahnschrift SemiCondensed",sans-serif;
+  font-weight:400;text-transform:none;letter-spacing:.02em;font-size:.86rem;
+  color:#0009;
+}
 /* TONE CLASSES ARE SCOPED TO THE BANNER. They were unscoped, so a solid banner background
    landed on every toned Field, Metric and Gauge as well - each row rendering as a filled block
    with near-invisible black-on-colour text. It stayed hidden while only the banner carried a
@@ -57,50 +142,137 @@ body{background:var(--stx-bg);color:var(--stx-amber);
    instead of being pushed hard right by space-between. */
 .stx-field .stx-field-value{text-align:left;overflow-wrap:anywhere}
 
-/* AdminLTE cards, restyled */
-.card.stx-panel{background:var(--stx-panel);border:1px solid var(--stx-line);
-  border-left:6px solid var(--stx-lilac);border-radius:0 14px 14px 0;margin-bottom:14px}
-.card.stx-panel>.card-header{background:transparent;border-bottom:1px solid var(--stx-line)}
-.card.stx-panel .card-title{color:var(--stx-sky);text-transform:uppercase;
-  font-size:.82rem;letter-spacing:.16em;font-weight:700}
+/* ---- panels. The left rail is the SIGNATURE: it carries the panel's tone, and
+       it is the only chrome. Everything else is hairlines and space. ---------- */
+.card.stx-panel{
+  background:linear-gradient(180deg,var(--stx-panel-2) 0%,var(--stx-panel) 100%);
+  border:1px solid var(--stx-line);
+  border-left:3px solid var(--stx-lilac);
+  border-radius:0 12px 12px 0;margin-bottom:14px;
+}
+.card.stx-panel>.card-header{background:transparent;border-bottom:1px solid var(--stx-line);padding:.7rem 1rem}
+.card.stx-panel .card-title{
+  font-family:"Bahnschrift Condensed","Bahnschrift",sans-serif;
+  color:var(--stx-sky);text-transform:uppercase;
+  font-size:.76rem;letter-spacing:.24em;font-weight:700;
+}
 
-.stx-metric{padding:8px 4px}
-.stx-metric-label{color:var(--stx-dim);text-transform:uppercase;font-size:.66rem;letter-spacing:.16em}
-.stx-metric-value{color:var(--stx-amber);font-size:1.85rem;font-weight:700;
-  line-height:1.1;font-variant-numeric:tabular-nums}
-.stx-metric-delta{font-size:.75rem}
+/* ---- metrics: the number is the object, the label is a caption -------------- */
+.stx-metric{padding:10px 4px}
+.stx-metric-label{
+  font-family:"Bahnschrift Condensed",sans-serif;
+  color:var(--stx-dim);text-transform:uppercase;font-size:.62rem;letter-spacing:.24em;
+}
+.stx-metric-value{
+  font-family:"Cascadia Mono",Consolas,monospace;
+  color:var(--stx-amber);font-size:2.05rem;font-weight:600;
+  line-height:1.15;letter-spacing:-.01em;
+}
+.stx-metric-delta{font-family:"Cascadia Mono",Consolas,monospace;font-size:.72rem}
 .stx-up{color:var(--stx-sky)} .stx-down{color:var(--stx-salmon)}
 
-.stx-field{display:flex;justify-content:space-between;gap:12px;
-  padding:4px 0;border-bottom:1px solid var(--stx-line)}
-.stx-field-label{color:var(--stx-dim);text-transform:uppercase;font-size:.7rem;letter-spacing:.12em}
-.stx-field-value{color:var(--stx-amber);font-variant-numeric:tabular-nums}
+/* ---- fields: label left in structure face, value right in data face --------- */
+.stx-field{
+  display:flex;justify-content:space-between;gap:14px;align-items:baseline;
+  padding:5px 0;border-bottom:1px solid var(--stx-line);
+}
+.stx-field:last-child{border-bottom:0}
+.stx-field-label{
+  font-family:"Bahnschrift Condensed",sans-serif;
+  color:var(--stx-dim);text-transform:uppercase;font-size:.66rem;letter-spacing:.18em;
+  flex:0 0 auto;
+}
+.stx-field-value{
+  font-family:"Cascadia Mono",Consolas,monospace;font-size:.82rem;
+  color:var(--stx-amber);text-align:right;overflow-wrap:anywhere;
+}
+
+/* A Field whose label is empty is a SENTENCE, not a label/value pair - the briefing's context
+   and severity lines are prose. Collapse the empty label and let the text read left to right
+   instead of being flung to the right margin by space-between. */
+.stx-field-label:empty{display:none}
+.stx-field-label:empty + .stx-field-value{text-align:left;flex:1}
 
 .stx-repeat-item{padding:6px 0;border-bottom:1px solid var(--stx-line)}
-.stx-empty{color:var(--stx-dim);font-style:italic;padding:6px 0}
-.stx-note{color:var(--stx-dim);margin:0}
+.stx-repeat-item:last-child{border-bottom:0}
+.stx-empty{color:var(--stx-dim);font-style:italic;padding:6px 0;font-size:.8rem}
+.stx-note{color:var(--stx-dim);margin:0;font-size:.8rem;line-height:1.5}
 
 .stx-table{color:var(--stx-amber)}
-.stx-table th{color:var(--stx-sky);text-transform:uppercase;font-size:.66rem;
-  letter-spacing:.14em;border-color:var(--stx-line)}
-.stx-table td{border-color:var(--stx-line);font-variant-numeric:tabular-nums}
+.stx-table th{
+  font-family:"Bahnschrift Condensed",sans-serif;
+  color:var(--stx-sky);text-transform:uppercase;font-size:.62rem;
+  letter-spacing:.2em;border-color:var(--stx-line);font-weight:700;
+}
+.stx-table td{
+  font-family:"Cascadia Mono",Consolas,monospace;font-size:.78rem;
+  border-color:var(--stx-line);
+}
 
-.stx-gauge-label{color:var(--stx-dim);text-transform:uppercase;font-size:.68rem;letter-spacing:.14em}
-.progress{background:var(--stx-line);height:9px;border-radius:0}
+.stx-gauge-label{
+  font-family:"Bahnschrift Condensed",sans-serif;
+  color:var(--stx-dim);text-transform:uppercase;font-size:.64rem;letter-spacing:.2em;
+}
+.progress{background:#161a26;height:6px;border-radius:0;margin-top:5px}
 .progress-bar{background:var(--stx-amber)}
 
-/* A value that could not be measured. NEVER shown as zero - a green zero reads as health,
-   and "silence is not health" is the most expensive lesson on this machine. */
-.stx-unknown .stx-metric-value,.stx-unknown .stx-field-value,td.stx-unknown{
-  color:var(--stx-red)!important;font-style:italic}
+/* ===========================================================================
+   ABSENCE. A value that could not be measured.
+
+   NEVER shown as zero - a green zero reads as health, and "silence is not
+   health" is the most expensive lesson on this machine. That part was always
+   right. What was wrong was the COLOUR: this used to render red.
+
+   Red is the language of alarm. An unmeasured value is not alarming, it is
+   ABSENT, and painting absence red does two kinds of damage - it trains the eye
+   to discount red, and it spends red on a non-event so nothing is left for a
+   real S1. Absence now reads as a void: desaturated, hollow, obviously a gap in
+   the data rather than a measurement that came back bad.
+
+   The dotted underline is doing the real work. Colour alone fails for a
+   colour-blind reader and fails again in a screenshot; a hollow slot with a
+   broken rule under it reads as "nothing here" without relying on hue at all.
+   =========================================================================== */
+.stx-unknown .stx-metric-value,
+.stx-unknown .stx-field-value,
+td.stx-unknown{
+  color:var(--stx-void)!important;
+  font-style:normal;
+  letter-spacing:.12em;
+  border-bottom:1px dotted var(--stx-void);
+  opacity:.85;
+}
+/* The metric case gets extra room to read as a hole rather than a short word. */
+.stx-unknown .stx-metric-value{font-size:1.15rem;letter-spacing:.22em;border-bottom-width:2px}
+
+/* RED IS RESERVED. S1 items, a rejected view, and a stale page - the three
+   states that genuinely mean "act", and nothing else in this file uses it. */
 .stx-error{color:var(--stx-red)}
 .stx-stale{border-left-color:var(--stx-red)!important}
+
+/* ---- accessibility floor, built in rather than announced ------------------- */
+a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--stx-sky);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  .stx-wrap{transition:none}
+  *{animation:none!important}
+}
+@media (max-width:820px){
+  .stx-wrap{padding:14px}
+  .stx-title{font-size:1.15rem;letter-spacing:.16em}
+  .stx-field{flex-direction:column;align-items:flex-start;gap:2px}
+  .stx-field-value{text-align:left}
+  .stx-metric-value{font-size:1.6rem}
+}
 </style>
 </head>
 <body>
 <div class="stx-wrap">
   <div class="stx-head">
     <div class="stx-title" id="stx-machine">STARSHIP CONSOLE</div>
+    <!-- The two facts that qualify every number below: how old it is, and how far back it looks.
+         In the masthead because they are preconditions for reading the page, not findings on it. -->
+    <div class="stx-head-stat" id="stx-age">MEASURED <b>--</b></div>
+    <div class="stx-head-spacer"></div>
     <div class="stx-clock" id="stx-clock">--:--:--</div>
   </div>
   <div id="stx-root"></div>
@@ -146,6 +318,27 @@ body{background:var(--stx-bg);color:var(--stx-amber);
      exists to prevent, so it gets a banner at the TOP in the same red as an unresolvable value.
      Threshold is 3 missed refreshes: one miss is a slow ssh to the EVO, three is a broken pipeline.
      Unknown age is treated as STALE, not as fresh - failing open in the direction of suspicion. */
+  /* THE STALENESS VEIL. Age drives page-wide saturation, so an out-of-date console looks
+     drained before a word of it is read. Peripheral vision notices colour loss across a whole
+     surface long before it notices a line of text, and the failure being guarded against is
+     precisely someone GLANCING at a confident-looking page. Floors at .25 rather than 0: a
+     greyscale page would look broken, and "broken" is a different claim from "old". */
+  (function(){
+    var veil = 1;
+    if (age === null)      veil = 0.25;
+    else if (age >= 60)    veil = 0.25;
+    else if (age >= 15)    veil = 0.45;
+    else if (age >= 10)    veil = 0.75;
+    document.querySelector('.stx-wrap').style.setProperty('--stx-veil', veil);
+
+    var el = document.getElementById('stx-age');
+    if (el) {
+      el.innerHTML = age === null
+        ? 'MEASURED <b class="stx-error">AGE UNKNOWN</b>'
+        : 'MEASURED <b>' + age + ' MIN AGO</b>';
+    }
+  })();
+
   var STALE_MIN = 15;
   if (age === null || age >= STALE_MIN) {
     var warn = document.createElement('div');
